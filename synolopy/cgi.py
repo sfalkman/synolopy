@@ -2,7 +2,7 @@ import requests
 
 from Queue import Queue
 from urlparse import urljoin
-from urllib import urlencode
+from urllib import quote
 
 from synolopy.errors import *
 
@@ -129,7 +129,9 @@ class CGI(PathElement):
             params.update(kwargs)
 
         if params:
-            return '{url}?{params}'.format(url=base, params=urlencode(params))
+            # using urlencode() will replace space with +, which synology api doesn't accept
+            encoded_params = "&".join( [ key+'='+quote(str(val)) for key,val in params.iteritems() ] )
+            return '{url}?{params}'.format(url=base, params=encoded_params)
         return base
 
     @_with_validation
