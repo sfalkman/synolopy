@@ -174,6 +174,21 @@ def _nas_api(url, login, password):
                     }
                 },
             },
+            'SurveillanceStation': {
+                'AUTH': True,
+                'CGI': {
+                    'info': {
+                        'ENTRY': True,
+                        'api': 'SYNO.SurveillanceStation.Info',
+                        'version': 1
+                    },
+                    'camera': {
+                        'ENTRY': True,
+                        'api': 'SYNO.SurveillanceStation.Camera',
+                        'version': 3
+                    }
+                },
+            }
         },
         'CGI': {
             'auth': {

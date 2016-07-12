@@ -40,9 +40,10 @@ class PathElement(object):
     """
     Object representation of any path URL node.
     """
-    def __init__(self, path, parent, auth=False):
+    def __init__(self, path, parent, auth=False, entry=False):
         self._path = path
         self._auth = auth
+        self._entry = entry
         self.__parent__ = parent
         if parent:
             setattr(parent, path.lower(), self)
@@ -73,8 +74,14 @@ class PathElement(object):
         """
         path = None
         nodes = self.parents()
-        while not nodes.empty():
+        
+        if self._entry:
+            # get base path and append entry
             path = urljoin(path, nodes.get().path())
+            path = urljoin(path, "entry")
+        else:
+            while not nodes.empty():
+                path = urljoin(path, nodes.get().path())
         return path
 
     def auth_required(self):
@@ -112,8 +119,8 @@ class CGI(PathElement):
     Object representation of a CGI, with useful methods to request and valid
     returned data and
     """
-    def __init__(self, path, parent, **kwargs):
-        super(CGI, self).__init__(path, parent)
+    def __init__(self, path, parent, entry=False, **kwargs):
+        super(CGI, self).__init__(path, parent, entry=entry)
         self.params = kwargs
 
     def path(self):
@@ -181,7 +188,9 @@ class CGIFactory(object):
     def _build_cgi(data, parent):
         cgi_set = data['CGI'] if 'CGI' in data else dict()
         for cgi, content in cgi_set.iteritems():
-            CGI(cgi, parent, **content)
+            entry = content['ENTRY'] if 'ENTRY' in content else False
+            content.pop('ENTRY', None)
+            CGI(cgi, parent, entry, **content)
 
 
 # ------------------------------------------------------------------------------
